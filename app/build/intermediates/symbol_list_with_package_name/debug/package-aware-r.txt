@@ -68,6 +68,8 @@ dimen notification_small_icon_size_as_large
 dimen notification_subtext_size
 dimen notification_top_pad
 dimen notification_top_pad_large_text
+drawable ic_ai_lightning
+drawable ic_bolt_gray
 drawable ic_call_answer
 drawable ic_call_answer_low
 drawable ic_call_answer_video
@@ -87,6 +89,7 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+font noto_nav
 id accessibility_action_clickable_span
 id accessibility_custom_action_0
 id accessibility_custom_action_1
@@ -299,4 +302,5 @@ styleable NavInclude graph
 styleable Navigator android_label android_id route
 xml backup_rules
 xml data_extraction_rules
+xml file_paths
 xml network_security_config

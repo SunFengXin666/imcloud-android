@@ -1,54 +1,70 @@
 [
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-xxhdpi_ic_launcher_round.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-xxhdpi/ic_launcher_round.png"
+        "merged": "com.imcloud.app-merged_res-47:/xml_data_extraction_rules.xml.flat",
+        "source": "com.imcloud.app-main-49:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-xhdpi_ic_launcher.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-xhdpi/ic_launcher.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-hdpi/ic_launcher.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-xxhdpi_ic_launcher.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-xxhdpi/ic_launcher.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-xxxhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-xxxhdpi_ic_launcher.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-xxxhdpi/ic_launcher.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-xxhdpi/ic_launcher_round.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-hdpi_ic_launcher_round.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-hdpi/ic_launcher_round.png"
+        "merged": "com.imcloud.app-merged_res-47:/font_noto_nav.ttf.flat",
+        "source": "com.imcloud.app-main-49:/font/noto_nav.ttf"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/xml_backup_rules.xml.flat",
-        "source": "com.imcloud.app-main-48:/xml/backup_rules.xml"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-hdpi_ic_launcher.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-hdpi/ic_launcher.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-xhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/xml_data_extraction_rules.xml.flat",
-        "source": "com.imcloud.app-main-48:/xml/data_extraction_rules.xml"
+        "merged": "com.imcloud.app-merged_res-47:/drawable_ic_ai_lightning.xml.flat",
+        "source": "com.imcloud.app-main-49:/drawable/ic_ai_lightning.xml"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-mdpi_ic_launcher.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-mdpi/ic_launcher.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-hdpi/ic_launcher_round.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/xml_network_security_config.xml.flat",
-        "source": "com.imcloud.app-main-48:/xml/network_security_config.xml"
+        "merged": "com.imcloud.app-merged_res-47:/xml_network_security_config.xml.flat",
+        "source": "com.imcloud.app-main-49:/xml/network_security_config.xml"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-xhdpi_ic_launcher_round.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-xhdpi/ic_launcher_round.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-xhdpi/ic_launcher_round.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-mdpi_ic_launcher_round.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-mdpi/ic_launcher_round.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-xxxhdpi/ic_launcher_round.png"
     },
     {
-        "merged": "com.imcloud.app-merged_res-46:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
-        "source": "com.imcloud.app-main-48:/mipmap-xxxhdpi/ic_launcher_round.png"
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.imcloud.app-merged_res-47:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.imcloud.app-main-49:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.imcloud.app-merged_res-47:/xml_backup_rules.xml.flat",
+        "source": "com.imcloud.app-main-49:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.imcloud.app-merged_res-47:/xml_file_paths.xml.flat",
+        "source": "com.imcloud.app-main-49:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.imcloud.app-merged_res-47:/drawable_ic_bolt_gray.png.flat",
+        "source": "com.imcloud.app-main-49:/drawable/ic_bolt_gray.png"
     }
 ]

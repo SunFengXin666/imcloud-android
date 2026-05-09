@@ -243,4 +243,94 @@ object ApiClient {
         val request = buildRequest("/api/disk/config", body, "PUT")
         return executeSync(request)
     }
+
+    fun checkUpdate(): String {
+        val request = buildRequest("/api/version")
+        return executeSync(request)
+    }
+
+    // ── Disk Upload/Download ──
+
+    fun diskUpload(connId: String, path: String, inputStream: java.io.InputStream, fileName: String): Boolean {
+        return try {
+            val url = "$BASE_URL/api/disk/$connId/upload"
+            val boundary = "----FormBoundary${System.currentTimeMillis()}"
+
+            val bodyStream = java.io.PipedInputStream()
+            val out = java.io.PipedOutputStream(bodyStream)
+
+            val t = Thread {
+                try {
+                    val writer = java.io.OutputStreamWriter(out, Charsets.UTF_8)
+                    writer.write("--$boundary\r\n")
+                    writer.write("Content-Disposition: form-data; name=\"path\"\r\n\r\n")
+                    writer.write(path)
+                    writer.write("\r\n")
+                    writer.write("--$boundary\r\n")
+                    writer.write("Content-Disposition: form-data; name=\"file\"; filename=\"$fileName\"\r\n")
+                    writer.write("Content-Type: application/octet-stream\r\n\r\n")
+                    writer.flush()
+
+                    val buffer = ByteArray(8192)
+                    var read: Int
+                    while (inputStream.read(buffer).also { read = it } != -1) {
+                        out.write(buffer, 0, read)
+                    }
+                    inputStream.close()
+
+                    writer.write("\r\n")
+                    writer.write("--$boundary--\r\n")
+                    writer.flush()
+                    out.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            t.start()
+            t.join(60000)
+
+            val requestBody = okhttp3.RequestBody.create(
+                "multipart/form-data; boundary=$boundary".toMediaType(),
+                bodyStream.readBytes()
+            )
+
+            val request = okhttp3.Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer ${getToken() ?: ""}")
+                .post(requestBody)
+                .build()
+
+            val response = client.newCall(request).execute()
+            val body = response.body?.string() ?: ""
+            response.close()
+            val json = com.google.gson.Gson().fromJson(body, Map::class.java)
+            json["ok"] == true
+        } catch (e: Exception) {
+            Log.e(TAG, "diskUpload failed", e)
+            false
+        }
+    }
+
+    fun diskDownload(connId: String, path: String): Map<String, Any>? {
+        return try {
+            val encodedPath = java.net.URLEncoder.encode(path, "UTF-8")
+            val request = buildRequest("/api/disk/$connId/download?path=$encodedPath")
+            val raw = executeSync(request)
+            @Suppress("UNCHECKED_CAST")
+            val json = com.google.gson.Gson().fromJson(raw, Map::class.java) as? Map<String, Any>
+            json?.takeIf { it["ok"] == true }
+        } catch (e: Exception) {
+            Log.e(TAG, "diskDownload failed", e)
+            null
+        }
+    }
+
+    fun formatFileSize(bytes: Long): String {
+        return when {
+            bytes < 1024 -> "$bytes B"
+            bytes < 1024 * 1024 -> String.format("%.1f KB", bytes / 1024.0)
+            bytes < 1024 * 1024 * 1024 -> String.format("%.1f MB", bytes / (1024.0 * 1024))
+            else -> String.format("%.2f GB", bytes / (1024.0 * 1024 * 1024))
+        }
+    }
 }
