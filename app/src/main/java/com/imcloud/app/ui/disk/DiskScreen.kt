@@ -148,9 +148,9 @@ fun DiskScreen(
                         val json = ApiClient.diskConnect(body)
                         val resp = Gson().fromJson(json, DiskConnectResponse::class.java)
                         withContext(Dispatchers.Main) {
-                            if (resp.ok == true && resp.connId != null) {
-                                val cid = resp.connId
-                                val root = resp.rootPath ?: "/"
+                            if (resp.ok == true && resp.conn_id != null) {
+                                val cid = resp.conn_id
+                                val root = resp.root_path ?: "/"
                                 connectionState = ConnectionState.Connected(cid, root)
                                 browserState = browserState.copy(
                                     currentPath = root,
@@ -352,6 +352,7 @@ fun DiskScreen(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DiskTopAppBar(
     currentPath: String,
     isConnected: Boolean,
@@ -718,7 +719,7 @@ private fun FileItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if (!file.isDir) {
+            if (!file.is_dir) {
                 Spacer(Modifier.height(2.dp))
                 Text(
                     "${formatSize(file.size)} · ${formatDate(file.mtime)}",

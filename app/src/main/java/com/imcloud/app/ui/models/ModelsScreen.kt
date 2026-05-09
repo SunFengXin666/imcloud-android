@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.imcloud.app.data.remote.ApiClient
 import com.imcloud.app.data.remote.Provider
 import kotlinx.coroutines.Dispatchers
@@ -72,8 +70,7 @@ private fun findKnownProvider(name: String): KnownProvider? =
 @Composable
 fun ModelsScreen(onBack: (() -> Unit)? = null) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
-    val prefs = ctx.getSharedPreferences("auth", Context.MODE_PRIVATE)
-    prefs.getString("token", null)?.let { ApiClient.setToken(it) }
+    val prefs = ctx.getSharedPreferences("imcloud_prefs", android.content.Context.MODE_PRIVATE)
 
     var providers by remember { mutableStateOf<List<Provider>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -100,9 +97,10 @@ fun ModelsScreen(onBack: (() -> Unit)? = null) {
             isLoading = true
             errorMsg = null
             try {
-                val json = withContext(Dispatchers.IO) { ApiClient.listProviders() }
-                val type = object : TypeToken<List<Provider>>() {}.type
-                providers = Gson().fromJson(json, type)
+                val json = withContext(Dispatchers.IO) { ApiClient.getProviders() }
+                @Suppress("UNCHECKED_CAST")
+                val list = Gson().fromJson(json, Array<Provider>::class.java).toList()
+                providers = list
             } catch (e: Exception) {
                 errorMsg = e.message ?: "加载失败"
             }

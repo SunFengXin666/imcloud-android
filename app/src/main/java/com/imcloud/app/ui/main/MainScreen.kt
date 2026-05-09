@@ -40,7 +40,7 @@ private data class NavItem(val label: String, val icon: ImageVector, val index: 
 private val navItems = listOf(
     NavItem("对话",  Icons.Default.Bolt,       0),
     NavItem("云盘",  Icons.Default.Folder,      1),
-    NavItem("记忆",  Icons.Default.LightbulbOutlined, 2),
+    NavItem("记忆",  Icons.Default.Lightbulb, 2),
     NavItem("设置",  Icons.Default.Settings,    3),
 )
 
@@ -104,7 +104,7 @@ fun MainScreen(onNavigateToLogin: () -> Unit = {}) {
                     ) { tab ->
                         when (tab) {
                             0 -> ChatScreen()
-                            1 -> DiskScreen()
+                            1 -> DiskScreen(onNavigateToLogin = onNavigateToLogin)
                             2 -> MemoriesScreen(onNavigateBack = { selectedTab = 0 })
                             3 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
                         }

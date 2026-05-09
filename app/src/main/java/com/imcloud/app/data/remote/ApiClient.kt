@@ -81,11 +81,13 @@ object ApiClient {
 
     private fun executeSync(request: Request): String {
         val response = client.newCall(request).execute()
-        val body = response.body?.string() ?: ""
-        if (!response.isSuccessful) {
-            throw IOException("HTTP ${response.code}: $body")
+        return response.use { resp ->
+            val body = resp.body?.string() ?: ""
+            if (!resp.isSuccessful) {
+                throw IOException("HTTP ${resp.code}: $body")
+            }
+            body
         }
-        return body
     }
 
     // ── Generic JSON POST ──
@@ -118,7 +120,12 @@ object ApiClient {
         val request = buildRequest("/api/auth/register", body, "POST")
         return try {
             val raw = executeSync(request)
-            com.google.gson.Gson().fromJson(raw, AuthResponse::class.java)
+            val resp = com.google.gson.Gson().fromJson(raw, AuthResponse::class.java)
+            if (resp.ok == true && resp.token != null) {
+                saveToken(resp.token)
+                saveUsername(resp.username ?: username)
+            }
+            resp
         } catch (e: Exception) {
             Log.e(TAG, "Register failed", e)
             AuthResponse(ok = false, error = e.message ?: "网络错误")
@@ -443,5 +450,4 @@ object ApiClient {
 
 data class AiConfig(val provider_name: String, val api_base: String, val api_key: String, val model: String)
 data class ChatResponse(val reply: String? = null, val error: String? = null)
-data class MemoryItem(val id: String, val content: String, val date: String)
 data class DiskConnection(val id: String, val name: String, val host: String, val port: Int, val username: String, val base_path: String)

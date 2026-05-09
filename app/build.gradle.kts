@@ -11,8 +11,8 @@ android {
         applicationId = "com.imcloud.app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.6.65"
+        versionCode = 21
+        versionName = "1.6.95"
     }
 
     buildTypes {
@@ -60,4 +60,5 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }

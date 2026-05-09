@@ -39,8 +39,8 @@ import com.google.gson.Gson
 import com.imcloud.app.data.remote.ApiClient
 import com.imcloud.app.data.remote.ApiMessage
 import com.imcloud.app.data.remote.ChatEntry
-import com.imcloud.app.ui.theme.Accent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Response
 import java.text.SimpleDateFormat
@@ -107,6 +107,8 @@ fun ChatScreen() {
 
     val listState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     // Load chat history on first composition
     LaunchedEffect(Unit) {
@@ -121,12 +123,9 @@ fun ChatScreen() {
     }
 
     // Load saved model preference
+    val prefs = context.getSharedPreferences("imcloud_prefs", android.content.Context.MODE_PRIVATE)
     LaunchedEffect(Unit) {
-        try {
-            val prefs = androidx.compose.ui.platform.LocalContext.current
-                .getSharedPreferences("imcloud_prefs", android.content.Context.MODE_PRIVATE)
-            currentModel = prefs?.getString("selected_model", "gpt-3.5-turbo") ?: "gpt-3.5-turbo"
-        } catch (_: Exception) { currentModel = "gpt-3.5-turbo" }
+        currentModel = prefs?.getString("selected_model", "gpt-3.5-turbo") ?: "gpt-3.5-turbo"
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -188,11 +187,8 @@ fun ChatScreen() {
                                         currentModel = model
                                         showModelMenu = false
                                         // Save preference
-                                        try {
-                                            androidx.compose.ui.platform.LocalContext.current
-                                                .getSharedPreferences("imcloud_prefs", android.content.Context.MODE_PRIVATE)
-                                                ?.edit()?.putString("selected_model", model)?.apply()
-                                        } catch (_: Exception) {}
+                                        context.getSharedPreferences("imcloud_prefs", android.content.Context.MODE_PRIVATE)
+                                            .edit()?.putString("selected_model", model)?.apply()
                                     },
                                     leadingIcon = {
                                         if (model == currentModel) {
@@ -457,7 +453,7 @@ fun ChatScreen() {
                             showHistorySheet = false
                         }, onDelete = {
                             chatHistory = chatHistory.filter { it.id != entry.id }
-                            saveChatHistory(chatHistory)
+                            scope.launch { saveChatHistory(chatHistory) }
                         })
                         Divider(color = DIVIDER, thickness = 0.5.dp)
                     }
@@ -663,53 +659,60 @@ private fun sendMessage(
     model: String,
     onMessage: (ChatMessage) -> Unit
 ) {
+    val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
     val userMsg = ChatMessage.User(content = text)
-    onMessage(userMsg)
+    mainHandler.post { onMessage(userMsg) }
 
     thread {
+        var response: Response? = null
         try {
             val messages = listOf(
                 ApiMessage(role = "user", content = text)
             )
-            val response: Response = ApiClient.chat(model, messages)
-            val body = response.body
+            val resp = ApiClient.chat(model, messages)
+            response = resp
+            val body = resp.body
             if (body == null) {
-                onMessage(ChatMessage.Assistant(content = "错误：无响应"))
+                mainHandler.post { onMessage(ChatMessage.Assistant(content = "错误：无响应")) }
                 return@thread
             }
 
-            val source = body.source()
-            val buffer = java.io.BufferedReader(java.io.InputStreamReader(source.inputStream, Charsets.UTF_8))
+            val buffer = java.io.BufferedReader(java.io.InputStreamReader(body.byteStream(), Charsets.UTF_8))
             val gson = Gson()
             var accumulated = ""
 
             try {
-                while (!source.isExhausted) {
-                    val line = buffer.readLine() ?: break
+                var line: String? = buffer.readLine()
+                while (line != null) {
                     if (line.startsWith("data: ")) {
                         val data = line.removePrefix("data: ").trim()
-                        if (data.isEmpty() || data == "[DONE]") continue
+                        if (data.isEmpty() || data == "[DONE]") {
+                            line = buffer.readLine()
+                            continue
+                        }
 
                         try {
                             val chunk = gson.fromJson(data, Map::class.java)
                             val delta = (chunk["choices"] as? List<*>)?.firstOrNull()
-                                as? Map<*, *>?.get("delta") as? Map<*, *>
+                                ?.let { it as? Map<*, *> }?.get("delta") as? Map<*, *>
                             val content = delta?.get("content") as? String
                             if (!content.isNullOrEmpty()) {
                                 accumulated += content
                             }
-                        } catch (_: Exception) { /* ignore parse errors */ }
+                        } catch (_: Exception) { }
                     }
+                    line = buffer.readLine()
                 }
             } catch (_: Exception) { }
 
             buffer.close()
-            response.close()
 
-            onMessage(ChatMessage.Assistant(content = accumulated.ifEmpty { "（无内容）" }))
+            mainHandler.post { onMessage(ChatMessage.Assistant(content = accumulated.ifEmpty { "（无内容）" })) }
         } catch (e: Exception) {
             Log.e("ChatScreen", "Stream error", e)
-            onMessage(ChatMessage.Assistant(content = "错误：${e.message ?: "未知错误"}"))
+            mainHandler.post { onMessage(ChatMessage.Assistant(content = "错误：${e.message ?: "未知错误"}")) }
+        } finally {
+            response?.close()
         }
     }
 }

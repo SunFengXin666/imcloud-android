@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,8 +17,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.imcloud.app.data.remote.ApiClient
+import com.imcloud.app.data.remote.MemoryItem as RemoteMemoryItem
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private val ACCENT = Color(0xFF5B8DEF)
 private val PAGE_BG = Color(0xFFE8EBF5)
@@ -35,19 +40,20 @@ fun MemoriesScreen(onNavigateBack: () -> Unit = {}) {
     var newContent by remember { mutableStateOf("") }
     var deletingId by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) { loadMemories() }
+    val scope = rememberCoroutineScope()
 
     fun loadMemories() {
         isLoading = true
-        Thread {
+        scope.launch {
             try {
-                val raw = ApiClient.get("/api/memories")
-                val type = object : TypeToken<List<MemoryItem>>() {}.type
-                memories = Gson().fromJson(raw, type) ?: emptyList()
+                val items = withContext(Dispatchers.IO) { ApiClient.getMemories() }
+                memories = items.map { MemoryItem(id = it.date, content = it.title, date = it.date) }
             } catch (e: Exception) { e.printStackTrace() }
             isLoading = false
-        }.start()
+        }
     }
+
+    LaunchedEffect(Unit) { loadMemories() }
 
     Scaffold(
         topBar = {
@@ -86,11 +92,11 @@ fun MemoriesScreen(onNavigateBack: () -> Unit = {}) {
                             memory = mem,
                             onDelete = {
                                 deletingId = mem.id
-                                Thread {
-                                    val ok = ApiClient.deleteMemory(mem.id)
+                                scope.launch {
+                                    val ok = withContext(Dispatchers.IO) { ApiClient.deleteMemory(mem.id) }
                                     if (ok) memories = memories.filter { it.id != mem.id }
                                     deletingId = null
-                                }.start()
+                                }
                             }
                         )
                     }
@@ -115,10 +121,10 @@ fun MemoriesScreen(onNavigateBack: () -> Unit = {}) {
             confirmButton = {
                 TextButton(onClick = {
                     if (newContent.isNotBlank()) {
-                        Thread {
-                            val ok = ApiClient.addMemory(newContent)
+                        scope.launch {
+                            val ok = withContext(Dispatchers.IO) { ApiClient.addMemory(newContent) }
                             if (ok) { newContent = ""; loadMemories() }
-                        }.start()
+                        }
                         showAddDialog = false
                     }
                 }) { Text("保存", color = ACCENT) }
