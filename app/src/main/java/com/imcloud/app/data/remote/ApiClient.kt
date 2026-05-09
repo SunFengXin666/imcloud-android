@@ -333,4 +333,115 @@ object ApiClient {
             else -> String.format("%.2f GB", bytes / (1024.0 * 1024 * 1024))
         }
     }
+
+    // ── AI Config ──
+    fun getAiConfig(): AiConfig {
+        return try {
+            val raw = get("/api/ai/config")
+            com.google.gson.Gson().fromJson(raw, AiConfig::class.java)
+        } catch (e: Exception) {
+            AiConfig("", "", "", "")
+        }
+    }
+
+    fun saveAiConfig(provider: String, apiBase: String, apiKey: String, model: String): Boolean {
+        return try {
+            val body = com.google.gson.Gson().toJson(mapOf("provider_name" to provider, "api_base" to apiBase, "api_key" to apiKey, "model" to model))
+            val raw = put("/api/ai/config", body)
+            val json = com.google.gson.Gson().fromJson(raw, Map::class.java)
+            json["ok"] == true
+        } catch (e: Exception) {
+            Log.e(TAG, "saveAiConfig failed", e)
+            false
+        }
+    }
+
+    // ── Chat ──
+    fun sendChat(message: String): ChatResponse {
+        return try {
+            val body = com.google.gson.Gson().toJson(mapOf("message" to message))
+            val raw = post("/api/chat", body)
+            com.google.gson.Gson().fromJson(raw, ChatResponse::class.java)
+        } catch (e: Exception) {
+            Log.e(TAG, "sendChat failed", e)
+            ChatResponse(error = e.message ?: "网络错误")
+        }
+    }
+
+    fun clearChats(): Boolean {
+        return try {
+            delete("/api/chats")
+            true
+        } catch (e: Exception) { false }
+    }
+
+    // ── Memories ──
+    fun getMemories(): List<MemoryItem> {
+        return try {
+            val raw = get("/api/memories")
+            val arr = com.google.gson.Gson().fromJson(raw, Array<MemoryItem>::class.java)
+            arr.toList()
+        } catch (e: Exception) { emptyList() }
+    }
+
+    fun addMemory(content: String): Boolean {
+        return try {
+            val body = com.google.gson.Gson().toJson(mapOf("content" to content))
+            val raw = post("/api/memories", body)
+            val json = com.google.gson.Gson().fromJson(raw, Map::class.java)
+            json["ok"] == true
+        } catch (e: Exception) { false }
+    }
+
+    fun deleteMemory(id: String): Boolean {
+        return try { delete("/api/memories/$id"); true } catch (e: Exception) { false }
+    }
+
+    // ── Disk Connections ──
+    fun getDiskConnections(): List<DiskConnection> {
+        return try {
+            val raw = get("/api/disk/connections")
+            val arr = com.google.gson.Gson().fromJson(raw, Array<DiskConnection>::class.java)
+            arr.toList()
+        } catch (e: Exception) { emptyList() }
+    }
+
+    fun addDiskConnection(name: String, host: String, port: Int, username: String, password: String, basePath: String): String? {
+        return try {
+            val body = com.google.gson.Gson().toJson(mapOf("name" to name, "host" to host, "port" to port, "username" to username, "password" to password, "base_path" to basePath))
+            val raw = post("/api/disk/connections", body)
+            val json = com.google.gson.Gson().fromJson(raw, Map::class.java)
+            json["id"] as? String
+        } catch (e: Exception) { null }
+    }
+
+    fun deleteDiskConnection(id: String): Boolean {
+        return try { delete("/api/disk/connections/$id"); true } catch (e: Exception) { false }
+    }
+
+    // Helpers
+    private fun get(path: String): String {
+        val request = buildRequest(path, null, "GET")
+        return executeSync(request)
+    }
+
+    private fun post(path: String, body: String): String {
+        val request = buildRequest(path, body, "POST")
+        return executeSync(request)
+    }
+
+    private fun put(path: String, body: String): String {
+        val request = buildRequest(path, body, "PUT")
+        return executeSync(request)
+    }
+
+    private fun delete(path: String): String {
+        val request = buildRequest(path, null, "DELETE")
+        return executeSync(request)
+    }
 }
+
+data class AiConfig(val provider_name: String, val api_base: String, val api_key: String, val model: String)
+data class ChatResponse(val reply: String? = null, val error: String? = null)
+data class MemoryItem(val id: String, val content: String, val date: String)
+data class DiskConnection(val id: String, val name: String, val host: String, val port: Int, val username: String, val base_path: String)

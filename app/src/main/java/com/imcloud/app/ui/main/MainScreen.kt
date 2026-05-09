@@ -24,7 +24,7 @@ import com.imcloud.app.data.remote.ApiClient
 import com.imcloud.app.ui.chat.ChatScreen
 import com.imcloud.app.ui.disk.DiskScreen
 import com.imcloud.app.ui.settings.SettingsScreen
-import com.imcloud.app.ui.models.ModelsScreen
+import com.imcloud.app.ui.memory.MemoriesScreen
 
 private val PAGE_BG         = Color(0xFFE8EBF5)
 private val CARD_BG         = Color.White
@@ -38,10 +38,10 @@ private val DIVIDER          = Color(0xFFE8E8F0)
 private data class NavItem(val label: String, val icon: ImageVector, val index: Int)
 
 private val navItems = listOf(
-    NavItem("新对话",  Icons.Default.Bolt,          0),
-    NavItem("云盘",   Icons.Default.Folder,         1),
-    NavItem("设置",   Icons.Default.Settings,        2),
-    NavItem("模型",   Icons.Default.AutoAwesome,     3),
+    NavItem("对话",  Icons.Default.Bolt,       0),
+    NavItem("云盘",  Icons.Default.Folder,      1),
+    NavItem("记忆",  Icons.Default.LightbulbOutlined, 2),
+    NavItem("设置",  Icons.Default.Settings,    3),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,8 +105,8 @@ fun MainScreen(onNavigateToLogin: () -> Unit = {}) {
                         when (tab) {
                             0 -> ChatScreen()
                             1 -> DiskScreen()
-                            2 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
-                            3 -> ModelsScreen()
+                            2 -> MemoriesScreen(onNavigateBack = { selectedTab = 0 })
+                            3 -> SettingsScreen(onNavigateToLogin = onNavigateToLogin)
                         }
                     }
                 }
