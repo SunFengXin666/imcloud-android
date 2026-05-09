@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.imcloud.app.ui.auth.LoginScreen
+import com.imcloud.app.ui.auth.RegisterScreen
 import com.imcloud.app.ui.chat.ChatScreen
 import com.imcloud.app.ui.splash.SplashScreen
 
@@ -36,6 +37,20 @@ fun NavGraph(
         composable(Screen.Login.route) {
             LoginScreen(
                 onNavigateToChat = {
+                    navController.navigate(Screen.Chat.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = {
+                    navController.navigate(Screen.Register.route)
+                }
+            )
+        }
+
+        composable(Screen.Register.route) {
+            RegisterScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onRegisterSuccess = {
                     navController.navigate(Screen.Chat.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
